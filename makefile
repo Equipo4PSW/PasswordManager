@@ -2,7 +2,7 @@ VENV = .env
 PY = $(VENV)/bin/python3
 PIP = $(VENV)/bin/pip
 ACTIVATE = $(VENV)/bin/activate
-MAIN = main.py
+MAIN = pm.py
 
 $(ACTIVATE): requirements.txt
 	virtualenv $(VENV)
@@ -11,8 +11,11 @@ $(ACTIVATE): requirements.txt
 run: $(ACTIVATE)
 	$(PY) $(MAIN)
 
+h: $(ACTIVATE)
+	$(PY) $(MAIN) --help
+
 clean: 
-	rm -rf __pycache__
 	rm -rf $(VENV)
+	find . -type d -name "__pycache__" -exec rm -rf {} +
 
 .PHONY: run clean
