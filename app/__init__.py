@@ -1,3 +1,4 @@
+from app.main import cli
 
 SECURE_SYM=";,._-@"
 

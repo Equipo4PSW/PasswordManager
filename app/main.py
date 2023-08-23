@@ -1,7 +1,7 @@
 import typer
 from typing import List, Optional
 
-app = typer.Typer()
+cli = typer.Typer()
 
 # Que las contraseñas sean una clase, ver si es rentable convertir todas las que tengamos en la db para poder buscarlas mas rapido
 # o una a una, eso esta por verse.
@@ -10,7 +10,7 @@ app = typer.Typer()
 # En el JSON dejar un tiempo de actividad, se inicia en 0 y ir cambiandolo, o podriamos dejar la fecha actual, 
 # y si la siguiente vez supera una cantidad de tiempo definida, pide la master password de nuevo.
 
-@app.command()
+@cli.command()
 def add(
         password: str = typer.Option(..., help="La contraseña deseada"), 
         tags: List[str] = typer.Option(..., help="Lista con los tags relacionados a la contraseña")
@@ -26,7 +26,7 @@ def add(
     '''
     print(password, tags)
 
-@app.command()
+@cli.command()
 def get(tags: List[str]):
     """
     Comando para obtener una password segun sus tags.
@@ -38,7 +38,7 @@ def get(tags: List[str]):
     """
     print(tags)
 
-@app.command()
+@cli.command()
 def update(tags: List[str]):
     """
     Comando para poder actualizar una password existente.
@@ -51,7 +51,7 @@ def update(tags: List[str]):
     """
     print(tags)
 
-@app.command()
+@cli.command()
 def delete(tags: List[str]):
     """
     Comando para poder borrar una password existente.
@@ -64,7 +64,7 @@ def delete(tags: List[str]):
     """
     print(tags)
 
-@app.command()
+@cli.command()
 def generate(
         a: Optional[bool], 
         A: Optional[bool], 
@@ -96,7 +96,7 @@ def generate(
     """
     print(a, A, n, sym)
 
-@app.command()
+@cli.command()
 def config():
     """
     Comando para configurar la clave maestra para el programa, revisa si esta definida, si lo esta no hace nada, si no
@@ -104,19 +104,17 @@ def config():
     """
     print("hola")
 
-@app.command()
+@cli.command()
 def change_master():
     """
     Comando para cambiar la clave maestra, ahi vemos si lo hacemos con las palabras de seguridad o con algun otro metodo.
     """
     print("hola 2")
 
-@app.command()
+@cli.command()
 def help():
     """
     Muestra todas las explicaciones de las funciones y sus flags.
     """
     print("hola 3")
 
-if __name__ == "__main__":
-    app()
