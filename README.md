@@ -19,6 +19,12 @@ Placeholder
 - Install libraries with `pip install -r requirements.txt`
 - Execute `python3 main.py`
 
+## Problems
+- If you had your terminal with spaces, maybe `curses` change configs on your
+terminal and didn't close well, just execute `reset` in linux. 
+
+WIP for windows.
+
 # How to use
 
 Placeholder

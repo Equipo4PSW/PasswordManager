@@ -1,7 +1,6 @@
 import curses
 from whoosh.qparser import QueryParser, FuzzyTermPlugin
 from whoosh.searching import Results
-from rich import print
 from rich.console import Console
 from rich.table import Table
 
