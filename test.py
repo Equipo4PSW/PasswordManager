@@ -1,12 +1,15 @@
 from whoosh.qparser import QueryParser, FuzzyTermPlugin
-from backend import Db
+from backend import Db, SearcherMenu
 
 dbHandler = Db()
 
 # TODO: Ojo si se spamea mucho el codigo, deja de agregar cosas, se podria testear cuando se complete el buscador.
-dbHandler.addDb("abc123", ['Netflix', 'suegra'])
-dbHandler.addDb("abc12345", ['Facebook', 'suegra'])
-dbHandler.addDb("abcdb12345", ['mi contra del face'])
+# dbHandler.addDb("abc123", ['Netflix', 'suegra'])
+# dbHandler.addDb("abc123", ['Netflix', 'yo'])
+# dbHandler.addDb("abc12345", ['Facebook', 'suegra'])
+# dbHandler.addDb("abc12345", ['Facebook', 'yo'])
+# dbHandler.addDb("abcdb12345", ['mi contra del face'])
+# dbHandler.addDb("abcdb12345", ['mi contra del yutu'])
 
 # writer = db.writerDB
 # writer.add_document(id=str(uuid.uuid4()), password='abc123', tags="netflix, suegra")
@@ -17,15 +20,23 @@ dbHandler.addDb("abcdb12345", ['mi contra del face'])
 # writer.add_document(id=str(uuid.uuid4()), password='abfaf', tags="Mi contra del febu")
 # writer.commit()
 
-passwordIndex = dbHandler.index
+word = "Netfl"
+dbHandler.searchPassword(word)
+# passwordIndex = dbHandler.index
+# searcher = SearcherMenu(passwordIndex, word)
+#
+# a = searcher.run()
+
+
+# dbHandler.searchPassword("Netfl~3")
 
 # word = "net*"
-word = "Netfl~3"
-with passwordIndex.searcher() as searcher:
-    queryParser = QueryParser("tags", passwordIndex.schema)
-    queryParser.add_plugin(FuzzyTermPlugin())
-
-    query = queryParser.parse(word)
-    results = searcher.search(query)
-    for result in results:
-        print(result)
+# with passwordIndex.searcher() as searcher:
+#     queryParser = QueryParser("tags", passwordIndex.schema)
+#     queryParser.add_plugin(FuzzyTermPlugin())
+#
+#     query = queryParser.parse(word)
+#     results = searcher.search(query)
+#     for result in results:
+#         print(type(result))
+#         print(type(results))

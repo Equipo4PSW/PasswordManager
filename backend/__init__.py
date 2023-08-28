@@ -1,6 +1,7 @@
 import os, os.path
 from whoosh.index import create_in, open_dir, exists_in, IndexError
-# from whoosh.qparser import QueryParser, FuzzyTermPlugin
+
+from .searcherMenu import SearcherMenu
 
 class Db:
 
@@ -27,3 +28,8 @@ class Db:
 
     # ===== Methods =====
     from .functions import addDb
+
+    def searchPassword(self, word:str):
+        searcher = SearcherMenu(self.index, word)
+        result = searcher.run()
+        print(result)
