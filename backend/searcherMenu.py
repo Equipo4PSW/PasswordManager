@@ -27,7 +27,7 @@ class SearcherMenu:
 
         if newIndex > end:
             return start
-        elif newIndex <= start:
+        elif newIndex < start:
             return end
         return newIndex
 
@@ -84,7 +84,7 @@ class SearcherMenu:
         self.searchAndDisplay(self.word)
         self.stdscr.addstr(self.i+1, 0, "Presiona Esc para salir")
         self.stdscr.addstr(self.i+2, 0, f"Búsqueda: {self.word}")
-        self.stdscr.addstr(self.i+3, 0, str(self.nResults))
+        #self.stdscr.addstr(self.i+3, 0, str(self.nResults))
         self.stdscr.refresh()
 
         resultIndex = -1
@@ -93,9 +93,9 @@ class SearcherMenu:
 
             if key == 27:  # Tecla Esc
                 break
-            elif key == curses.KEY_DOWN or key == ord('['): # Seleccionar hacia abajo
+            elif key == curses.KEY_DOWN or key == ord('('): # Seleccionar hacia abajo
                 self.selected = self.cyclicIndex(self.selected, self.nResults, -1)
-            elif key == curses.KEY_UP or key == ord(']'): # Seleccionar hacia arriba
+            elif key == curses.KEY_UP or key == 9 or key == ord(')'): # Seleccionar hacia arriba
                 self.selected = self.cyclicIndex(self.selected, self.nResults, 1)
             elif key == curses.KEY_ENTER or key == 10:
                 resultIndex = self.selected-3
@@ -112,7 +112,7 @@ class SearcherMenu:
             self.searchAndDisplay(self.word)
             self.stdscr.addstr(self.i+1, 0, "Presiona Esc para salir")
             self.stdscr.addstr(self.i+2, 0, f"Búsqueda: {self.word}")
-            self.stdscr.addstr(self.i+3, 0, str(self.nResults))
+            self.stdscr.addstr(self.i+3, 0, str(key))
             self.stdscr.refresh()
 
 
