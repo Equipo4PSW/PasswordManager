@@ -17,7 +17,33 @@ class SearcherMenu:
         # Handlers para el menu interactivo
         self.stdscr = curses.initscr()
         curses.curs_set(0)  # Oculta el cursor
+        self.stdscr.clear()
         self.console = Console()
+
+    def getPasswords(self, word:str):
+        with self.index.searcher() as searcher:
+
+            # Ver si hay palabra o no
+            if word != "":
+                # Preparar el buscador
+                queryParser = QueryParser("tags", self.index.schema)
+                queryParser.add_plugin(FuzzyTermPlugin())
+
+                # Buscar la palabra indicada
+                query = queryParser.parse(word)
+                results = searcher.search(query)
+            else:
+                results =[]
+                for document in searcher.documents():
+                    results.append(document)
+
+            console = Console()
+            # Poner las contraseñas en una tabla 
+            table = Table('Contraseña' , 'Tags')
+            for result in results:
+                table.add_row(result["password"], result["tags"])
+
+            console.print(table)
 
 
     def cyclicIndex(self, current, end, increment):
@@ -78,6 +104,9 @@ class SearcherMenu:
                     self.stdscr.addstr(self.i, 0, aux, curses.color_pair(2))
 
                 self.i += 1
+
+    def close(self):
+        curses.endwin()
 
     def run(self):
        

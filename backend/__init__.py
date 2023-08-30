@@ -27,9 +27,14 @@ class Db:
             print("No se pudo abrir el indice", error)
 
     # ===== Methods =====
-    from .functions import addDb
+    from .functions import addDb, deleteDb, updateDb
 
-    def searchPassword(self, word:str):
+    def searchPassword(self, word:str) -> dict:
         searcher = SearcherMenu(self.index, word)
         result = searcher.run()
-        print(result)
+        # searcher.close()
+        return result
+
+    def getPasswords(self, word:str):
+        searcher = SearcherMenu(self.index, word)
+        searcher.getPasswords(word)

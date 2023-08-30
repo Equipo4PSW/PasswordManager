@@ -10,6 +10,9 @@ dbHandler = Db()
 # dbHandler.addDb("abc12345", ['Facebook', 'yo'])
 # dbHandler.addDb("abcdb12345", ['mi contra del face'])
 # dbHandler.addDb("abcdb12345", ['mi contra del yutu'])
+# dbHandler.addDb("hola123", ['Borrar'])
+# dbHandler.addDb("aabbc", ['Change password'])
+# dbHandler.addDb("aabb", ['change'])
 
 # writer = db.writerDB
 # writer.add_document(id=str(uuid.uuid4()), password='abc123', tags="netflix, suegra")
@@ -20,8 +23,12 @@ dbHandler = Db()
 # writer.add_document(id=str(uuid.uuid4()), password='abfaf', tags="Mi contra del febu")
 # writer.commit()
 
-word = "Netfl"
-dbHandler.searchPassword(word)
+word = "change"
+# dbHandler.getPasswords(word)
+dbHandler.getPasswords('')
+# xd = dbHandler.searchPassword(word)
+# dbHandler.updateDb(xd, "lecambielacontraseñapo")
+# dbHandler.searchPassword(word)
 # passwordIndex = dbHandler.index
 # searcher = SearcherMenu(passwordIndex, word)
 #
