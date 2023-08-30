@@ -14,8 +14,12 @@ run: $(ACTIVATE)
 h: $(ACTIVATE)
 	$(PY) $(MAIN) --help
 
+cldata:
+	rm -rf data
+
 clean: 
 	rm -rf $(VENV)
+	rm -rf data
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 
 .PHONY: run clean
