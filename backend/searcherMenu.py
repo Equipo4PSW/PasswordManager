@@ -1,12 +1,10 @@
 import curses
 from whoosh.qparser import QueryParser, FuzzyTermPlugin
-from whoosh.searching import Results
 from rich.console import Console
 from rich.table import Table
 
 class SearcherMenu:
     def __init__(self, index, word):
-        # Declarar iniciales
         self.index = index
         self.word = word
         self.i = 0
@@ -14,22 +12,20 @@ class SearcherMenu:
         self.nResults = 0
         self.resutls = []
 
-        # Handlers para el menu interactivo
-        self.stdscr = curses.initscr()
-        curses.curs_set(0)  # Oculta el cursor
-        self.stdscr.clear()
-        self.console = Console()
 
     def getPasswords(self, word:str):
+        self.console = Console()
+
         with self.index.searcher() as searcher:
 
-            # Ver si hay palabra o no
+            # Verify if there is a word
             if word != "":
-                # Preparar el buscador
+                # Setup searcher
+                # TODO: Agregar mas buscadores ya que Fuzzy no es preciso ahora mismo
                 queryParser = QueryParser("tags", self.index.schema)
                 queryParser.add_plugin(FuzzyTermPlugin())
 
-                # Buscar la palabra indicada
+                # Query the word in db
                 query = queryParser.parse(word)
                 results = searcher.search(query)
             else:
@@ -38,7 +34,7 @@ class SearcherMenu:
                     results.append(document)
 
             console = Console()
-            # Poner las contraseñas en una tabla 
+            # Put passwords in a table
             table = Table('Contraseña' , 'Tags')
             for result in results:
                 table.add_row(result["password"], result["tags"])
@@ -58,14 +54,14 @@ class SearcherMenu:
         return newIndex
 
     def searchAndDisplay(self, word: str):
-        # Prefijo para mejorar las busquedas
+        # Prefix to improve results
         prefix = "~3"
         with self.index.searcher() as searcher:
-            # Preparar el buscador
+            # Setup searcher
             queryParser = QueryParser("tags", self.index.schema)
             queryParser.add_plugin(FuzzyTermPlugin())
 
-            # Buscar la palabra indicada
+            # Query the word in db
             query = queryParser.parse(word+prefix)
             results = searcher.search(query)
            
@@ -105,15 +101,19 @@ class SearcherMenu:
 
                 self.i += 1
 
-    def close(self):
-        curses.endwin()
-
     def run(self):
        
+        # Handlers para el menu interactivo
+        self.stdscr = curses.initscr()
+        curses.curs_set(0)  # Oculta el cursor
+        self.stdscr.clear()
+        self.console = Console()
+
         self.searchAndDisplay(self.word)
         self.stdscr.addstr(self.i+1, 0, "Presiona Esc para salir")
         self.stdscr.addstr(self.i+2, 0, "Presione ('↓/↑', 'Tab/BTab', '(/)', '[/]') para navegar entre opciones")
-        self.stdscr.addstr(self.i+3, 0, f"Búsqueda: {self.word}")
+        self.stdscr.addstr(self.i+3, 0, "Presione Enter para aceptar su busqueda.")
+        self.stdscr.addstr(self.i+4, 0, f"Búsqueda: {self.word}")
         self.stdscr.refresh()
 
         resultIndex = -1
@@ -141,7 +141,8 @@ class SearcherMenu:
             self.searchAndDisplay(self.word)
             self.stdscr.addstr(self.i+1, 0, "Presiona Esc para salir")
             self.stdscr.addstr(self.i+2, 0, "Presione ('↓/↑', 'Tab/BTab', '(/)', '[/]') para navegar entre opciones")
-            self.stdscr.addstr(self.i+3, 0, f"Búsqueda: {self.word}")
+            self.stdscr.addstr(self.i+3, 0, "Presione Enter para aceptar su busqueda.")
+            self.stdscr.addstr(self.i+4, 0, f"Búsqueda: {self.word}")
             self.stdscr.refresh()
 
 

@@ -10,7 +10,6 @@ def addDb(self, password: str, tagsList: List[str]):
         tagsList (List[str]): Lista con todos los tags relacionados a la contraseña.
     """
 
-
     # Open writer for db
     writer = self.index.writer()
 
@@ -26,6 +25,8 @@ def addDb(self, password: str, tagsList: List[str]):
     # Save in database
     writer.add_document(id=_id, password=_password, tags=_tags)
     writer.commit()
+
+    # TODO: Agregar un try: para ver si se guardo o no la contraseña.
 
 def deleteDb(self, id: str):
     """

@@ -25,10 +25,10 @@ dbHandler = Db()
 
 word = "change"
 # dbHandler.getPasswords(word)
-dbHandler.getPasswords('')
+# dbHandler.getPasswords('')
 # xd = dbHandler.searchPassword(word)
 # dbHandler.updateDb(xd, "lecambielacontraseñapo")
-# dbHandler.searchPassword(word)
+dbHandler.searchPassword(word)
 # passwordIndex = dbHandler.index
 # searcher = SearcherMenu(passwordIndex, word)
 #

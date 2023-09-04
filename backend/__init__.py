@@ -1,5 +1,6 @@
 import os, os.path
 from whoosh.index import create_in, open_dir, exists_in, IndexError
+from typing import List
 
 from .searcherMenu import SearcherMenu
 
@@ -30,11 +31,15 @@ class Db:
     from .functions import addDb, deleteDb, updateDb
 
     def searchPassword(self, word:str) -> dict:
+        # Display searcher engine
         searcher = SearcherMenu(self.index, word)
         result = searcher.run()
-        # searcher.close()
         return result
 
-    def getPasswords(self, word:str):
-        searcher = SearcherMenu(self.index, word)
-        searcher.getPasswords(word)
+    def getPasswords(self, tagsList:List[str]):
+        # Gets a string of tags separated by commas.
+        tags = ",".join(tagsList)
+
+        # Search passwords with tags and display
+        searcher = SearcherMenu(self.index, tags)
+        searcher.getPasswords(tags)

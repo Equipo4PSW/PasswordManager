@@ -1,7 +1,14 @@
 import typer
+import pyperclip
 from typing import List, Optional
+from typing_extensions import Annotated
+from backend import Db
 
 cli = typer.Typer()
+db = Db()
+
+ACCEPT_OPTIONS = ["si", "s", "S", "Si", "SI", "y", "yes", "Y", "YES"]
+DENY_OPTIONS = ["no", "n", "N", "No", "NO"]
 
 # Que las contraseñas sean una clase, ver si es rentable convertir todas las que tengamos en la db para poder buscarlas mas rapido
 # o una a una, eso esta por verse.
@@ -12,22 +19,33 @@ cli = typer.Typer()
 
 @cli.command()
 def add(
-        password: str = typer.Option(..., help="La contraseña deseada"), 
-        tags: List[str] = typer.Option(..., help="Lista con los tags relacionados a la contraseña")
+        # password: str = typer.Option(help="La contraseña deseada"), 
+        # tags: List[str] = typer.Option(help="Lista con los tags relacionados a la contraseña"),
+
+        password: str,
+        tags: List[str],
+        verify: bool = typer.Option(False, "--no-verification", "--v", help="Si se incluye se salta la doble verificacion de la contraseña")
     ):
     '''
-    Comando para agregar una password. Debemos otorgarle una password y los tags asociados a esta\n
-    Lo que debemos hacer es:
-        - Que escriba la password por segunda vez para estar seguro.
-        - Que los tags sean validos.
-        - Comprobar que no se repitan los tags (fzf) y si se parece mucho preguntar. y permitir cambiarlos
-        - Tomar la password y cifrarla.
-        - Guardarla en "db"
+    Comando para agregar una password. Debemos otorgarle una password y los tags asociados a esta
     '''
-    print(password, tags)
+    # print(password, tags)
+
+    # Repeat password
+    if not verify:
+        aux = str(input("Repita la contraseña: "))
+        if aux != password:
+            print("Las contraseñas no son iguales, vuelva a intentarlo")
+            return
+
+    db.addDb(password, tags)
+
+    # TODO: Esto deberia estar en las funciones de DB para confirmar bien
+    print("Se ha guardado correctamente")
 
 @cli.command()
-def get(tags: List[str]):
+def get(tags: Annotated[Optional[List[str]], typer.Argument()] = None):
+# def get(tags: Optional[List[str]]):
     """
     Comando para obtener una password segun sus tags.
     Lo que debemos hacer es:
@@ -36,23 +54,56 @@ def get(tags: List[str]):
         - Tiene que haber una opcion para que agregue mas tags a su busqueda.
         - Cuando elija una, mostrarsela en pantalla, ojala que se la pegue en el portapapeles.
     """
-    print(tags)
+    # print(tags)
+    db.getPasswords(tags)
+
 
 @cli.command()
-def update(tags: List[str]):
+def search():
+    """
+    Comando usado para abrir el buscador de contraseñas y poder copiar en el portapapeles la seleccionada
+    """
+
+    obj = db.searchPassword('')
+    if obj != []:
+        pyperclip.copy(obj["password"])
+        print("Contraseña pegada en el portapapeles")
+
+@cli.command()
+def update(
+        tags: Annotated[Optional[List[str]], typer.Argument()] = None,
+        password: str = typer.Option('', "--clave", "--password", help="Nueva contraseña utilizada para actualizar"),
+        verify: bool = typer.Option(False, "--no-verification", "--v", help="Si se incluye se salta la doble verificacion de la contraseña")
+    ):
     """
     Comando para poder actualizar una password existente.
-    Lo que debemos hacer es:
-        - Si no tiene tags permitirle que busque y mostrarle las password que coinciden
-        - Si tiene tags mostrarle las password que coinciden.
-        - Tiene que haber una opcion para que agregue mas tags a su busqueda.
-        - Cuando elija una, ejecutar un proceso similar al que tiene en add.
-        - Guardar los cambios en db.
     """
-    print(tags)
+
+    # Gets a string of tags separated by commas.
+    _tags = ",".join(tags)
+    
+    # Verify if there is a password
+    if password == "":
+        password = str(input("Ingrese una contraseña: "))
+
+    # Repeat password
+    if not verify:
+        aux = str(input("Repita la contraseña: "))
+        if aux != password:
+            print("Las contraseñas no son iguales, vuelva a intentarlo")
+            return
+
+    #Get password dict
+    obj = db.searchPassword(_tags)
+    print(obj)
+
+    db.updateDb(obj, password)
 
 @cli.command()
-def delete(tags: List[str]):
+def delete(
+        tags: List[str],
+        verify: bool = typer.Option(False, "--no-verification", "--v", help="Si se incluye se salta la doble verificacion para borrar la contraseña")
+    ):
     """
     Comando para poder borrar una password existente.
     Lo que debemos hacer es:
@@ -63,6 +114,20 @@ def delete(tags: List[str]):
         - Guardar los cambios en db.
     """
     print(tags)
+
+    # Gets a string of tags separated by commas.
+    _tags = ",".join(tags)
+
+    #Get password dict
+    obj = db.searchPassword(_tags)
+
+    if not verify:
+        aux = str(input("Estas seguro de borrar la contraseña (si/no): "))
+        if aux in ACCEPT_OPTIONS:
+            # Delete the password
+            db.deleteDb(obj['id'])
+
+
 
 @cli.command()
 def generate(
