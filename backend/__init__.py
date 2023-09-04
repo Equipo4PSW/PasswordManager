@@ -9,26 +9,41 @@ class Db:
     # ===== Constructor =====
     def __init__(self):
         # Define DB Schema
-        from .schemas import passwordSchema
+        from .schemas import passwordSchema, masterSchema
         self.schema = passwordSchema
+        self.masterSchema = masterSchema
 
         # Define and open database.
-        DBPATH = "data"
+        BASE = os.path.abspath("./data")
+        DB_PASSWORD_PATH = f"{BASE}/password/"
+        DB_MASTER_PATH = f"{BASE}/master/"
 
+        # Try open index for passwords
         try:
-            if not os.path.exists(DBPATH):
-                os.mkdir(DBPATH)
+            os.makedirs(DB_PASSWORD_PATH, exist_ok=True)
 
-            if exists_in(DBPATH):
-                self.index = open_dir(DBPATH)
+            if exists_in(DB_PASSWORD_PATH):
+                self.index = open_dir(DB_PASSWORD_PATH)
             else:
-                self.index = create_in(DBPATH, self.schema)
+                self.index = create_in(DB_PASSWORD_PATH, self.schema)
 
         except IndexError as error:
-            print("No se pudo abrir el indice", error)
+            print("No se pudo abrir el indice de las contraseñas", error)
+
+        # Try open index for master password
+        try:
+            os.makedirs(DB_MASTER_PATH, exist_ok=True)
+
+            if exists_in(DB_MASTER_PATH):
+                self.masterIndex = open_dir(DB_MASTER_PATH)
+            else:
+                self.masterIndex = create_in(DB_MASTER_PATH, self.masterSchema)
+
+        except IndexError as error:
+            print("No se pudo abrir el indice de las contraseñas maestras", error)
 
     # ===== Methods =====
-    from .functions import addDb, deleteDb, updateDb
+    from .functions import addDb, deleteDb, updateDb, addMasterDb, checkTime
 
     def searchPassword(self, word:str) -> dict:
         # Display searcher engine

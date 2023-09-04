@@ -29,7 +29,6 @@ def add(
     '''
     Comando para agregar una password. Debemos otorgarle una password y los tags asociados a esta
     '''
-    # print(password, tags)
 
     # Repeat password
     if not verify:
@@ -45,7 +44,6 @@ def add(
 
 @cli.command()
 def get(tags: Annotated[Optional[List[str]], typer.Argument()] = None):
-# def get(tags: Optional[List[str]]):
     """
     Comando para obtener una password segun sus tags.
     Lo que debemos hacer es:
@@ -113,8 +111,6 @@ def delete(
         - Cuando elija una, preguntar si de verdad quiere borrarla.
         - Guardar los cambios en db.
     """
-    print(tags)
-
     # Gets a string of tags separated by commas.
     _tags = ",".join(tags)
 
@@ -167,19 +163,30 @@ def config():
     Comando para configurar la clave maestra para el programa, revisa si esta definida, si lo esta no hace nada, si no
     pregunta por una password, hace que la repitas y define algunas palabras de seguridad extra para poder recuperarla en caso de.
     """
-    print("hola")
+    
+    # Enter password
+    password = str(input("Ingrese su contraseña maestra: "))
+
+    # Repeat password
+    aux = str(input("Repita la contraseña: "))
+    if aux != password:
+        print("Las contraseñas no son iguales, vuelva a intentarlo")
+        return
+
+    db.addMasterDb(password)
 
 @cli.command()
-def change_master():
+def remaining():
     """
-    Comando para cambiar la clave maestra, ahi vemos si lo hacemos con las palabras de seguridad o con algun otro metodo.
+    Printea cuanto tiempo queda con la contraseña maestra activa
     """
-    print("hola 2")
 
-@cli.command()
-def help():
-    """
-    Muestra todas las explicaciones de las funciones y sus flags.
-    """
-    print("hola 3")
+    db.checkTime()
+
+
+
+
+
+
+
 
