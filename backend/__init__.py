@@ -1,6 +1,9 @@
-import os, os.path
+import os
 from whoosh.index import create_in, open_dir, exists_in, IndexError
 from typing import List
+
+# from globalVariables import DB_PASSWORD_PATH, DB_MASTER_PATH
+from .globalVariables import DB_PASSWORD_PATH, DB_MASTER_PATH
 
 from .searcherMenu import SearcherMenu
 
@@ -13,10 +16,7 @@ class Db:
         self.schema = passwordSchema
         self.masterSchema = masterSchema
 
-        # Define and open database.
-        BASE = os.path.abspath("./data")
-        DB_PASSWORD_PATH = f"{BASE}/password/"
-        DB_MASTER_PATH = f"{BASE}/master/"
+        # --- Define and open database. ---
 
         # Try open index for passwords
         try:
@@ -43,7 +43,8 @@ class Db:
             print("No se pudo abrir el indice de las contraseñas maestras", error)
 
     # ===== Methods =====
-    from .functions import addDb, deleteDb, updateDb, addMasterDb, checkTime
+    from .functions.master import addMasterDb, verifyHandler, checkTime
+    from .functions.password import addDb, deleteDb, updateDb
 
     def searchPassword(self, word:str) -> dict:
         # Display searcher engine

@@ -1,15 +1,15 @@
 from cryptography.fernet import Fernet
 
-PATH = "./"
+from ..globalVariables import BASE
 
 def generate_key():
     key = Fernet.generate_key()
-    with open('{}.env.key'.format(PATH), 'wb') as env_file:
+    with open('{}.env.key'.format(BASE), 'wb') as env_file:
         env_file.write(key)
     return
 
 def read_key():
-    with open('{}.env.key'.format(PATH), 'rb') as env_file:
+    with open('{}.env.key'.format(BASE), 'rb') as env_file:
         key = env_file.read()
     return key
 
@@ -27,7 +27,6 @@ def decryptor(encriptado):
     return desencriptado
 
 def compare(password,encriptado):
-    key = read_key()
     desencriptado = decryptor(encriptado)
     return password == desencriptado
     

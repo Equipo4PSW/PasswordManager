@@ -7,7 +7,6 @@ passwordSchema = Schema(
 )
 
 masterSchema = Schema(
-    id=ID(stored=True, unique=True, sortable=True),
     user=TEXT(stored=True),
     password=TEXT(stored=True),
     last_time=DATETIME(stored=True),

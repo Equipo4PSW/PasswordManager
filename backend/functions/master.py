@@ -1,90 +1,9 @@
-import uuid
-from typing import List
 from datetime import datetime, timedelta
 from whoosh.qparser import QueryParser
 
-USERNAME="user"
-VERIFY_TIME = 5
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-TIME_FORMAT = "%M:%S"
+from ..globalVariables import USERNAME, VERIFY_TIME
 
-# ===== General functions =====
-# def verifyPassword()
-
-# ===== Normal Passwords ======
-
-def addDb(self, password: str, tagsList: List[str]):
-    """
-    Agrega la contraseña cifrada a la base de datos y le asigna las tags relacionadas.
-
-    Args:
-        password (str): String con la contraseña sin decifrar.
-        tagsList (List[str]): Lista con todos los tags relacionados a la contraseña.
-    """
-
-    # Open writer for db
-    writer = self.index.writer()
-
-    # Gets an id
-    _id = str(uuid.uuid4())
-    
-    # Gets a string of tags separated by commas.
-    _tags = ",".join(tagsList)
-
-    # Encrypt password.
-    _password = password
-
-    # Save in database
-    writer.add_document(id=_id, password=_password, tags=_tags)
-    writer.commit()
-
-    # TODO: Agregar un try: para ver si se guardo o no la contraseña.
-
-def deleteDb(self, id: str):
-    """
-    Busca la por id la con contraseña deseada y la borra de la db
-
-    Args:
-        id (str): String con el id de la contraseña a borrar.
-    """
-
-    # Open writer for db
-    writer = self.index.writer()
-
-    # Delete element
-    writer.delete_by_term("id", id)
-    writer.commit()
-
-def updateDb(self, obj:dict, password:str):
-    """
-    Busca la por id la con contraseña deseada y la actualiza.
-
-    Args:
-        id (str): String con el id de la contraseña a borrar.
-        password (str): String con la contraseña sin decifrar.
-    """
-
-    # Open writer for db
-    writer = self.index.writer()
-
-    # Update element
-    writer.update_document(id=obj['id'], password=password, tags=obj['tags'])
-    writer.commit()
-
-# ===== Master password =====
-def getCurrentDate():
-    """
-    Obtiene la hora actual en el formato DATE_FORMAT definido anteriormente
-    """
-
-    # Get current time
-    currentDate = datetime.now()
-
-    # Format time in YYYY-MM-DD HH:DD:SS
-    format = DATE_FORMAT
-    date = currentDate.strftime(format)
-
-    return date
+# ===== Auxiliar Functions =====
 
 def verifyToken(self) -> bool:
     """
@@ -101,22 +20,22 @@ def verifyToken(self) -> bool:
         results = searcher.search(query)
         master = results[0]
 
-        # Get time with verify password
+        # Get time with verified password
         aux = master["verify_time"]
         limit = timedelta(minutes=aux)
 
         # Get currentTime, the last time that master password was used and compare them
-        # currentDate = getCurrentDate()
         currentDate = datetime.now()
         lastTime = master["last_time"]
 
-        # date1 = datetime.strptime(currentDate, DATE_FORMAT)
-        # date2 = datetime.strptime(lastTime, DATE_FORMAT)
+        # Get how much time remains
+        timeAux = limit - (currentDate - lastTime)
 
-        if currentDate-lastTime >= limit:
+        if timeAux.days == -1:
             return False
         else:
             return True
+
 
 def setNewVerifyTime(self, verifyTime:int=VERIFY_TIME):
     """
@@ -140,13 +59,14 @@ def setNewVerifyTime(self, verifyTime:int=VERIFY_TIME):
 
         # Update element
         writer.update_document(
-            id=master['id'], 
             user=master['user'],
             password=master['password'], 
             last_time=currentDate,
             verify_time=verifyTime
         )
         writer.commit()
+
+# ===== Class Functions =====
 
 def verifyHandler(self, verifyTime:int=VERIFY_TIME) -> bool:
 
@@ -163,6 +83,7 @@ def verifyHandler(self, verifyTime:int=VERIFY_TIME) -> bool:
 
     return True
 
+
 def checkTime(self):
     """
     Printea en pantalla cuanto tiempo tenemos con la contraseña maestra activada
@@ -175,18 +96,16 @@ def checkTime(self):
         results = searcher.search(query)
         master = results[0]
 
+        # Get time with verified password
+        limitAux = master["verify_time"]
+        limit = timedelta(minutes=limitAux)
+
         # Get currentTime, the last time that master password and max time limit
-        # currentDate = getCurrentDate()
         currentDate = datetime.now()
         lastTime = master["last_time"]
-
-        limitAux = master["verify_time"]
-        # limit = currentDate + timedelta(minutes=limitAux)
-        limit = timedelta(minutes=limitAux)
-    
+        
+        # Get how much time remains
         timeAux = limit - (currentDate - lastTime)
-        # timeAux = lastTime - limit
-        # timeLeft = timeAux.strftime(TIME_FORMAT)
         min, sec = divmod(timeAux.seconds, 60)
         timeLeft = f"{min:02}:{sec:02}"
 
@@ -216,19 +135,14 @@ def addMasterDb(self, password: str):
     # Open writer for db
     writer = self.masterIndex.writer()
 
-    # Gets an id
-    _id = str(uuid.uuid4())
-
     # Encrypt password.
     _password = password
 
     # Get current date
-    # date=getCurrentDate()
     date = datetime.now()
 
     # Save in database
     writer.add_document(
-        id=_id,
         user=USERNAME,
         password=_password,
         last_time=date,
