@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
 from whoosh.qparser import QueryParser
 
-from ..globalVariables import USERNAME, VERIFY_TIME
+from ..globalVariables import USERNAME, VERIFY_TIME, OK, NO_OK, NO_PASSWORD
 
 # ===== Auxiliar Functions =====
 
-def verifyToken(self) -> bool:
+def checkTime(self, on_screen=False) -> bool:
     """
     Verifica cuanto tiempo ha pasado desde la ultima vez que ingresamos la clave maestra.
     
@@ -18,6 +18,12 @@ def verifyToken(self) -> bool:
         queryParser = QueryParser("user", self.masterIndex.schema)
         query = queryParser.parse(USERNAME)
         results = searcher.search(query)
+
+        # Check if there is a master password
+        if len(results) == 0:
+            print("Debes configurar una constraseña maestra antes de poder ejecutar cualquier otra funcion, para esto ejecuta: \n    python pm.py config")
+            return NO_PASSWORD
+
         master = results[0]
 
         # Get time with verified password
@@ -30,11 +36,21 @@ def verifyToken(self) -> bool:
 
         # Get how much time remains
         timeAux = limit - (currentDate - lastTime)
+        
+        # Print remaining time
+        if on_screen:
+            min, sec = divmod(timeAux.seconds, 60)
+            timeLeft = f"{min:02}:{sec:02}"
+
+            if not timeAux.days == -1:
+                print(f"Te quedan {timeLeft} de tener la clave maestra activa")
+            else:
+                print("No te queda tiempo activo con tu clave maestra, vuelve a ingresarla con: \n    python pm.py activate")
 
         if timeAux.days == -1:
-            return False
+            return NO_OK
         else:
-            return True
+            return OK
 
 
 def setNewVerifyTime(self, verifyTime:int=VERIFY_TIME):
@@ -50,8 +66,14 @@ def setNewVerifyTime(self, verifyTime:int=VERIFY_TIME):
         results = searcher.search(query)
         master = results[0]
 
+
+        # Ask for master password
+        password = str(input("Ingrese la contraseña maestra: "))
+
+        # Verify password
+        # if not print"tamalo"
+
         # Get current time
-        # currentDate = getCurrentDate()
         currentDate = datetime.now()
 
         # Open writer for db
@@ -71,48 +93,17 @@ def setNewVerifyTime(self, verifyTime:int=VERIFY_TIME):
 def verifyHandler(self, verifyTime:int=VERIFY_TIME) -> bool:
 
     # Check time for master password
-    if not verifyToken(self):
+    code = checkTime(self)
 
-        # Ask for master password
-        password = str(input("Ingrese la contraseña maestra: "))
-
-        # Verify password
-        # if not print"tamalo"
-
+    if code == NO_OK:
         setNewVerifyTime(self, verifyTime)
+        return True
 
-    return True
+    elif code == NO_PASSWORD:
+        return False
 
-
-def checkTime(self):
-    """
-    Printea en pantalla cuanto tiempo tenemos con la contraseña maestra activada
-    """
-
-    with self.masterIndex.searcher() as searcher:
-        # Get master password object
-        queryParser = QueryParser("user", self.masterIndex.schema)
-        query = queryParser.parse(USERNAME)
-        results = searcher.search(query)
-        master = results[0]
-
-        # Get time with verified password
-        limitAux = master["verify_time"]
-        limit = timedelta(minutes=limitAux)
-
-        # Get currentTime, the last time that master password and max time limit
-        currentDate = datetime.now()
-        lastTime = master["last_time"]
-        
-        # Get how much time remains
-        timeAux = limit - (currentDate - lastTime)
-        min, sec = divmod(timeAux.seconds, 60)
-        timeLeft = f"{min:02}:{sec:02}"
-
-        if not timeAux.days == -1:
-            print(f"Te quedan {timeLeft} de tener la clave maestra activa")
-        else:
-            verifyHandler(self)
+    else:   
+        return True
 
 def addMasterDb(self, password: str):
     """

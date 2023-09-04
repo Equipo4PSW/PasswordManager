@@ -19,9 +19,6 @@ DENY_OPTIONS = ["no", "n", "N", "No", "NO"]
 
 @cli.command()
 def add(
-        # password: str = typer.Option(help="La contraseña deseada"), 
-        # tags: List[str] = typer.Option(help="Lista con los tags relacionados a la contraseña"),
-
         password: str,
         tags: List[str],
         verify: bool = typer.Option(False, "--no-verification", "--v", help="Si se incluye se salta la doble verificacion de la contraseña")
@@ -29,6 +26,10 @@ def add(
     '''
     Comando para agregar una password. Debemos otorgarle una password y los tags asociados a esta
     '''
+
+    # Check if had master pass
+    if not db.verifyHandler():
+        return
 
     # Repeat password
     if not verify:
@@ -45,13 +46,13 @@ def add(
 @cli.command()
 def get(tags: Annotated[Optional[List[str]], typer.Argument()] = None):
     """
-    Comando para obtener una password segun sus tags.
-    Lo que debemos hacer es:
-        - Si no tiene tags permitirle que busque y mostrarle las password que coinciden
-        - Si tiene tags mostrarle las password que coinciden.
-        - Tiene que haber una opcion para que agregue mas tags a su busqueda.
-        - Cuando elija una, mostrarsela en pantalla, ojala que se la pegue en el portapapeles.
+    Muestra el buscador con las tags ingresadas
     """
+
+    # Check if had master pass
+    if not db.verifyHandler():
+        return
+
     # print(tags)
     db.getPasswords(tags)
 
@@ -61,6 +62,10 @@ def search():
     """
     Comando usado para abrir el buscador de contraseñas y poder copiar en el portapapeles la seleccionada
     """
+
+    # Check if had master pass
+    if not db.verifyHandler():
+        return
 
     obj = db.searchPassword('')
     if obj != []:
@@ -76,6 +81,10 @@ def update(
     """
     Comando para poder actualizar una password existente.
     """
+    
+    # Check if had master pass
+    if not db.verifyHandler():
+        return
 
     # Gets a string of tags separated by commas.
     _tags = ",".join(tags)
@@ -104,13 +113,12 @@ def delete(
     ):
     """
     Comando para poder borrar una password existente.
-    Lo que debemos hacer es:
-        - Si no tiene tags permitirle que busque y mostrarle las password que coinciden
-        - Si tiene tags mostrarle las password que coinciden.
-        - Tiene que haber una opcion para que agregue mas tags a su busqueda.
-        - Cuando elija una, preguntar si de verdad quiere borrarla.
-        - Guardar los cambios en db.
     """
+
+    # Check if had master pass
+    if not db.verifyHandler():
+        return
+
     # Gets a string of tags separated by commas.
     _tags = ",".join(tags)
 
@@ -122,8 +130,6 @@ def delete(
         if aux in ACCEPT_OPTIONS:
             # Delete the password
             db.deleteDb(obj['id'])
-
-
 
 @cli.command()
 def generate(
@@ -178,10 +184,14 @@ def config():
 @cli.command()
 def remaining():
     """
-    Printea cuanto tiempo queda con la contraseña maestra activa
+    Imprime en pantalla cuanto tiempo queda con la contraseña maestra activa y es usado para renovar el tiempo con la contraseña activa"
     """
 
-    db.checkTime()
+    # Check if had master pass
+    if not db.verifyHandler():
+        return
+
+    db.checkTime(on_screen=True)
 
 
 
