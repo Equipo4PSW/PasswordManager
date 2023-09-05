@@ -43,6 +43,7 @@ def checkTime(self, on_screen=False) -> bool:
         if on_screen:
             min, sec = divmod(timeAux.seconds, 60)
             timeLeft = f"{min:02}:{sec:02}"
+            print(timeAux)
 
             if not timeAux.days == -1:
                 print(f"Te quedan {timeLeft} de tener la clave maestra activa")

@@ -65,3 +65,8 @@ class Db:
     def generateKey(self):
         from .passwords import generate_key
         generate_key()
+
+    def passwordGenerator(self, size:int, a:bool, A:bool, n:bool, sym:str) -> str:
+        from .passwords import generate_pasword
+
+        return generate_pasword(size, a, A, n, sym)

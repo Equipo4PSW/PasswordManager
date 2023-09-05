@@ -7,7 +7,7 @@ DB_MASTER_PATH = f"{BASE}/master/"
 
 # Variables for master password management
 USERNAME="user"
-VERIFY_TIME = 1
+VERIFY_TIME = 5
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 TIME_FORMAT = "%M:%S"
 

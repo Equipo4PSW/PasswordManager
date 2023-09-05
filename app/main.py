@@ -1,8 +1,10 @@
 import typer
 import pyperclip
+import random
 from typing import List, Optional
 from typing_extensions import Annotated
 from backend import Db
+from backend.passwords import password_generator
 from backend.passwords.encryption import generate_key
 
 cli = typer.Typer()
@@ -134,35 +136,39 @@ def delete(
 
 @cli.command()
 def generate(
-        a: Optional[bool], 
-        A: Optional[bool], 
-        n: Optional[bool], 
-        s: Optional[bool], 
-        t: Optional[bool], 
-        sym: Optional[str], 
-        tags: Optional[List[str]]=None, 
+        a: bool = typer.Option(True, "a", "--minusculas", help="Indica si la contraseña generada tiene minusculas."),
+        A: bool = typer.Option(True, "A", "--mayusculas", help="Indica si la contraseña generada tiene mayusculas."),
+        n: bool = typer.Option(True, "n", "--numeros", help="Indica si la contraseña generada tiene numeros."),
+        sym: str = typer.Option("", "sym", "--simbolos", help="Indica que simbolos puede tener la contraseña."),
+        t: bool = typer.Option(False, "--segura", help="Indica si el generador debe generar una contraseña segura (16 largo, alfanumerica con mayusculas sin simbolos)"),
         min: int=8, 
         max: int=16, 
     ):
     """
     Comando para poder generar una password segura, viene con distintas opciones para componerla como:
-        - a: letras minusculas
-        - A: letras mayusculas
-        - n: numeros
-        - sym: string con simbolos validos para la password
-    Se puede definir un minimo y maximo, en caso de que no se haga, se define un rango entre 8-16.
-    En caso de que se ejecute solo o con la flag --s crea una contraseña de 16 de largo alfanumerica con mayusculas y ciertos symbolos,
-    estos simbolos pueden ser sobrescritos si --sym no esta vacio.
-    Si viene con tags definidos, se pasa por el proceso de comprobacion de tags y se agrega automaticamente como una password a la db,
-    pero si -t esta definida, no pregunta ni se agrega la nueva password a la db
-    
-    Lo que debemos hacer:
-        - Ver en cual de todos los casos caemos y ejecutar una funcion que se encargue de crear la password.
-        - En caso de que las tags no esten definidas, preguntar para agregarla a la db, si -t no esta definida.
-        - Mostrar la password
-        - En caso de que venga con tags, preguntar si esta bien, si lo esta, procesar como add si no pedir otra.
     """
-    print(a, A, n, sym)
+
+    while(1):
+        # Generate secure password
+        if t:
+            password = db.passwordGenerator(16, True, True, True)
+        else:
+            if not sym:
+                sym = ""
+
+            size = random.randint(min, max)
+            password = db.passwordGenerator(size, a, A, n, sym)
+
+        # Ask for another password
+        print(f"La contraseña generada fue: {password}")
+
+        opt = str(input("Desea cambiarla por otra contraseña (y/n): "))
+        if opt in DENY_OPTIONS:
+            break
+
+    # Copy new password in the clipboard
+    pyperclip.copy(password)
+    print("Contraseña pegada en el portapapeles")
 
 @cli.command()
 def config():
@@ -190,5 +196,9 @@ def remaining():
     """
     Imprime en pantalla cuanto tiempo queda con la contraseña maestra activa y es usado para renovar el tiempo con la contraseña activa"
     """
+
+    # Check if had master pass
+    if not db.verifyHandler():
+        return
 
     db.checkTime(on_screen=True)
