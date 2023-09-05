@@ -9,27 +9,19 @@ Placeholder
 
 # Installation
 
-## Makefile
-- Execute `make run`
-
-## Manual
-- Create a python virtual environment with `virtualenv .env`
-- Activate venv:
-    - In Linux: `source .env/bin/activate`
-- Install libraries with `pip install -r requirements.txt`
-- Execute `python3 main.py`
-
--Abrir powershell como administrador
+-Open Powershell as Administrator
+-Execute `pip install -r requirements.txt`
 -Create a python virtual environment with `python -m venv .env`
--Ejecutar comando `Set-ExecutionPolicy RemoteSigned` -> `O`
+-Execute `Set-ExecutionPolicy RemoteSigned` -> `O`
 -Activate virtual environment: `get-acl .env\Scripts\activate`
-
-## Problems
-- If you had your terminal with spaces, maybe `curses` change configs on your
-terminal and didn't close well, just execute `reset` in linux. 
-
-WIP for windows.
 
 # How to use
 
-Placeholder
+-Execute `python mp.py --help` to see commands
+-Execute `python mp.py {command} --help` to see how to use command
+-Execute `python mp.py config` to configurate master password
+    -Write master password
+    -Rewrite master password
+-Execute `python mp.py add {password} {flag1} {flag2} ... {flagn}` to see add password to the database
+-Execute `python mp.py search` to search by flag in database
+-Execute `python mp.py remaining` to see time left in current session
