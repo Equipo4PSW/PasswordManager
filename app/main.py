@@ -7,18 +7,13 @@ from backend import Db
 from backend.passwords import password_generator
 from backend.passwords.encryption import generate_key
 
+from .function import repeatPassword
+
 cli = typer.Typer()
 db = Db()
 
 ACCEPT_OPTIONS = ["si", "s", "S", "Si", "SI", "y", "yes", "Y", "YES"]
 DENY_OPTIONS = ["no", "n", "N", "No", "NO"]
-
-# Que las contraseñas sean una clase, ver si es rentable convertir todas las que tengamos en la db para poder buscarlas mas rapido
-# o una a una, eso esta por verse.
-# Que el usuario al generar una password la pueda guardar inmediatamente agregando los tags.
-
-# En el JSON dejar un tiempo de actividad, se inicia en 0 y ir cambiandolo, o podriamos dejar la fecha actual, 
-# y si la siguiente vez supera una cantidad de tiempo definida, pide la master password de nuevo.
 
 @cli.command()
 def add(
@@ -36,15 +31,10 @@ def add(
 
     # Repeat password
     if not verify:
-        aux = str(input("Repita la contraseña: "))
-        if aux != password:
-            print("Las contraseñas no son iguales, vuelva a intentarlo")
+        if not repeatPassword(password, "que quiere agregar"):
             return
 
     db.addDb(password, tags)
-
-    # TODO: Esto deberia estar en las funciones de DB para confirmar bien
-    print("Se ha guardado correctamente")
 
 @cli.command()
 def get(tags: Annotated[Optional[List[str]], typer.Argument()] = None):
@@ -98,14 +88,11 @@ def update(
 
     # Repeat password
     if not verify:
-        aux = str(input("Repita la contraseña: "))
-        if aux != password:
-            print("Las contraseñas no son iguales, vuelva a intentarlo")
+        if not repeatPassword(password, "que esta actualizando"):
             return
 
     #Get password dict
     obj = db.searchPassword(_tags)
-    print(obj)
 
     db.updateDb(obj, password)
 
@@ -131,15 +118,16 @@ def delete(
     if not verify:
         aux = str(input("Estas seguro de borrar la contraseña (si/no): "))
         if aux in ACCEPT_OPTIONS:
+
             # Delete the password
             db.deleteDb(obj['id'])
 
 @cli.command()
 def generate(
-        a: bool = typer.Option(True, "a", "--minusculas", help="Indica si la contraseña generada tiene minusculas."),
-        A: bool = typer.Option(True, "A", "--mayusculas", help="Indica si la contraseña generada tiene mayusculas."),
-        n: bool = typer.Option(True, "n", "--numeros", help="Indica si la contraseña generada tiene numeros."),
-        sym: str = typer.Option("", "sym", "--simbolos", help="Indica que simbolos puede tener la contraseña."),
+        a: bool = typer.Option(False, "--a", "--minusculas", help="Indica si la contraseña generada tiene minusculas."),
+        A: bool = typer.Option(False, "--A", "--mayusculas", help="Indica si la contraseña generada tiene mayusculas."),
+        n: bool = typer.Option(False, "--n", "--numeros", help="Indica si la contraseña generada tiene numeros."),
+        sym: str = typer.Option("", "--sym", "--simbolos", help="Indica que simbolos puede tener la contraseña."),
         t: bool = typer.Option(False, "--segura", help="Indica si el generador debe generar una contraseña segura (16 largo, alfanumerica con mayusculas sin simbolos)"),
         min: int=8, 
         max: int=16, 
@@ -177,18 +165,17 @@ def config():
     pregunta por una password, hace que la repitas y define algunas palabras de seguridad extra para poder recuperarla en caso de.
     """
     
-    # Generate key for the passwords
-    db.generateKey()
-    
     # Enter password
     password = str(input("Ingrese su contraseña maestra: "))
 
     # Repeat password
-    aux = str(input("Repita la contraseña: "))
-    if aux != password:
-        print("Las contraseñas no son iguales, vuelva a intentarlo")
+    if not repeatPassword(password, "maestra ingresada"):
         return
 
+    # Generate key for the passwords
+    db.generateKey()
+
+    # Add master password to db
     db.addMasterDb(password)
 
 @cli.command()

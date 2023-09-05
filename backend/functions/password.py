@@ -1,5 +1,6 @@
 import uuid
 import base64
+import logging
 from typing import List
 
 from ..passwords import encrypter
@@ -29,10 +30,19 @@ def addDb(self, password: str, tagsList: List[str]):
     _password = base64.b64encode(_passwordBytes).decode('utf-8')
 
     # Save in database
-    writer.add_document(id=_id, password=_password, tags=_tags)
-    writer.commit()
+    try:
+        writer.add_document(id=_id, password=_password, tags=_tags)
+        writer.commit()
+        
+        msg = "Se ha guardado correctamente la contraseña."
+        print(msg)
+        self.log.info(msg)
+        
+    except Exception as e:
+        msg = f"Error al agregar contraseña a la base de datos: {str(e)}"
+        print(msg)
+        self.log.error(msg)
 
-    # TODO: Agregar un try: para ver si se guardo o no la contraseña.
 
 def deleteDb(self, id: str):
     """
@@ -46,8 +56,20 @@ def deleteDb(self, id: str):
     writer = self.index.writer()
 
     # Delete element
-    writer.delete_by_term("id", id)
-    writer.commit()
+    try:
+        writer.delete_by_term("id", id)
+        writer.commit()
+
+        msg = "Se ha borrado correctamente la contraseña."
+        print(msg)
+        self.log.info(msg)
+        
+    except Exception as e:
+        msg = f"Error al borrar la contraseña en la base de datos: {str(e)}"
+        print(msg)
+        self.log.error(msg)
+
+    # Delete element
 
 def updateDb(self, obj:dict, password:str):
     """
@@ -66,6 +88,15 @@ def updateDb(self, obj:dict, password:str):
     _password = base64.b64encode(_passwordBytes).decode('utf-8')
 
     # Update element
-    writer.update_document(id=obj['id'], password=_password, tags=obj['tags'])
-    writer.commit()
+    try:
+        writer.update_document(id=obj['id'], password=_password, tags=obj['tags'])
+        writer.commit()
 
+        msg = "Se ha actualizado correctamente la contraseña."
+        print(msg)
+        self.log.info(msg)
+        
+    except Exception as e:
+        msg = f"Error al actualizar la contraseña en la base de datos: {str(e)}"
+        print(msg)
+        self.log.error(msg)

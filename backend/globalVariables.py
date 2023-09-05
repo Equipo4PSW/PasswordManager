@@ -1,9 +1,14 @@
 import os.path
 
-# Variables for paths
+# Variables for db paths
 BASE = os.path.abspath("./data")
 DB_PASSWORD_PATH = f"{BASE}/password/"
 DB_MASTER_PATH = f"{BASE}/master/"
+
+# Variables for log system
+LOGGER_PATH=f"{os.path.abspath('./logs')}"
+LOGGER_NAME=f"{LOGGER_PATH}/logs.log"
+LOGGER_FORMAT="%(asctime)s - %(levelname)s - %(message)s"
 
 # Variables for master password management
 USERNAME="user"

@@ -145,10 +145,20 @@ def addMasterDb(self, password: str):
     date = datetime.now()
 
     # Save in database
-    writer.add_document(
-        user=USERNAME,
-        password=_password,
-        last_time=date,
-        verify_time=VERIFY_TIME
-    )
-    writer.commit()
+    try:
+        writer.add_document(
+            user=USERNAME,
+            password=_password,
+            last_time=date,
+            verify_time=VERIFY_TIME
+        )
+        writer.commit()
+        
+        msg = "Se ha guardado correctamente la contraseña maestra."
+        print(msg)
+        self.log.info(msg)
+        
+    except Exception as e:
+        msg = f"Error al agregar contraseña maestra a la base de datos: {str(e)}"
+        print(msg)
+        self.log.error(msg)

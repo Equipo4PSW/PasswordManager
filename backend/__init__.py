@@ -1,9 +1,9 @@
 import os
+import logging
 from whoosh.index import create_in, open_dir, exists_in, IndexError
 from typing import List
 
-# from globalVariables import DB_PASSWORD_PATH, DB_MASTER_PATH
-from .globalVariables import DB_PASSWORD_PATH, DB_MASTER_PATH
+from .globalVariables import DB_PASSWORD_PATH, DB_MASTER_PATH, LOGGER_FORMAT, LOGGER_PATH, LOGGER_NAME
 
 from .searcherMenu import SearcherMenu
 
@@ -41,6 +41,23 @@ class Db:
 
         except IndexError as error:
             print("No se pudo abrir el indice de las contraseñas maestras", error)
+
+        # --- Log system ---
+        # Setup logger
+        self.log = logging.getLogger(__name__)
+        self.log.setLevel(logging.DEBUG)
+        formatter = logging.Formatter(LOGGER_FORMAT)
+
+        # Setup logger handler
+        os.makedirs(LOGGER_PATH, exist_ok=True)
+        fileHandler = logging.FileHandler(LOGGER_NAME)
+
+        fileHandler.setLevel(logging.DEBUG)
+        fileHandler.setFormatter(formatter)
+
+        # Add handler to log system
+        self.log.addHandler(fileHandler)
+
 
     # ===== Methods =====
     from .functions.master import addMasterDb, verifyHandler, checkTime
