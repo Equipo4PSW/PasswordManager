@@ -1,5 +1,8 @@
 import uuid
+import base64
 from typing import List
+
+from ..passwords import encrypter
 
 # ===== Normal Passwords ======
 
@@ -22,7 +25,8 @@ def addDb(self, password: str, tagsList: List[str]):
     _tags = ",".join(tagsList)
 
     # Encrypt password.
-    _password = password
+    _passwordBytes = encrypter(password) 
+    _password = base64.b64encode(_passwordBytes).decode('utf-8')
 
     # Save in database
     writer.add_document(id=_id, password=_password, tags=_tags)
@@ -57,7 +61,11 @@ def updateDb(self, obj:dict, password:str):
     # Open writer for db
     writer = self.index.writer()
 
+    # Encrypt password.
+    _passwordBytes = encrypter(password) 
+    _password = base64.b64encode(_passwordBytes).decode('utf-8')
+
     # Update element
-    writer.update_document(id=obj['id'], password=password, tags=obj['tags'])
+    writer.update_document(id=obj['id'], password=_password, tags=obj['tags'])
     writer.commit()
 

@@ -46,6 +46,8 @@ class Db:
     from .functions.master import addMasterDb, verifyHandler, checkTime
     from .functions.password import addDb, deleteDb, updateDb
 
+    from .passwords import generate_key
+
     def searchPassword(self, word:str) -> dict:
         # Display searcher engine
         searcher = SearcherMenu(self.index, word)
@@ -59,3 +61,7 @@ class Db:
         # Search passwords with tags and display
         searcher = SearcherMenu(self.index, tags)
         searcher.getPasswords(tags)
+
+    def generateKey(self):
+        from .passwords import generate_key
+        generate_key()

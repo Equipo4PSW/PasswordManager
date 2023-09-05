@@ -4,12 +4,12 @@ from ..globalVariables import BASE
 
 def generate_key():
     key = Fernet.generate_key()
-    with open('{}.env.key'.format(BASE), 'wb') as env_file:
+    with open('{}/env.key'.format(BASE), 'wb') as env_file:
         env_file.write(key)
     return
 
 def read_key():
-    with open('{}.env.key'.format(BASE), 'rb') as env_file:
+    with open('{}/env.key'.format(BASE), 'rb') as env_file:
         key = env_file.read()
     return key
 

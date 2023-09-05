@@ -3,6 +3,7 @@ import pyperclip
 from typing import List, Optional
 from typing_extensions import Annotated
 from backend import Db
+from backend.passwords.encryption import generate_key
 
 cli = typer.Typer()
 db = Db()
@@ -170,6 +171,9 @@ def config():
     pregunta por una password, hace que la repitas y define algunas palabras de seguridad extra para poder recuperarla en caso de.
     """
     
+    # Generate key for the passwords
+    db.generateKey()
+    
     # Enter password
     password = str(input("Ingrese su contraseña maestra: "))
 
@@ -187,16 +191,4 @@ def remaining():
     Imprime en pantalla cuanto tiempo queda con la contraseña maestra activa y es usado para renovar el tiempo con la contraseña activa"
     """
 
-    # Check if had master pass
-    if not db.verifyHandler():
-        return
-
     db.checkTime(on_screen=True)
-
-
-
-
-
-
-
-

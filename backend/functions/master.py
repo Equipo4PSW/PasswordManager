@@ -1,7 +1,9 @@
+import base64
 from datetime import datetime, timedelta
 from whoosh.qparser import QueryParser
 
 from ..globalVariables import USERNAME, VERIFY_TIME, OK, NO_OK, NO_PASSWORD
+from ..passwords import encrypter, compare
 
 # ===== Auxiliar Functions =====
 
@@ -44,8 +46,6 @@ def checkTime(self, on_screen=False) -> bool:
 
             if not timeAux.days == -1:
                 print(f"Te quedan {timeLeft} de tener la clave maestra activa")
-            else:
-                print("No te queda tiempo activo con tu clave maestra, vuelve a ingresarla con: \n    python pm.py activate")
 
         if timeAux.days == -1:
             return NO_OK
@@ -68,10 +68,17 @@ def setNewVerifyTime(self, verifyTime:int=VERIFY_TIME):
 
 
         # Ask for master password
-        password = str(input("Ingrese la contraseña maestra: "))
+        print("===================================================================")
+        print("Se acabo el tiempo valido con la contraseña maestra")
+        passwordInput = str(input("Ingrese la contraseña maestra: "))
 
         # Verify password
-        # if not print"tamalo"
+        # Decrypt password
+        masterPassword = master["password"]
+        _masterPassword = base64.b64decode(masterPassword)
+        if not compare(passwordInput, _masterPassword):
+            print("Contraseña maestra incorrecta")
+            return
 
         # Get current time
         currentDate = datetime.now()
@@ -82,11 +89,14 @@ def setNewVerifyTime(self, verifyTime:int=VERIFY_TIME):
         # Update element
         writer.update_document(
             user=master['user'],
-            password=master['password'], 
+            password=masterPassword, 
             last_time=currentDate,
             verify_time=verifyTime
         )
         writer.commit()
+
+        print("Se ha actualizado el tiempo de la contraseña maestra")
+        print("===================================================================")
 
 # ===== Class Functions =====
 
@@ -127,7 +137,8 @@ def addMasterDb(self, password: str):
     writer = self.masterIndex.writer()
 
     # Encrypt password.
-    _password = password
+    _passwordBytes = encrypter(password) 
+    _password = base64.b64encode(_passwordBytes).decode('utf-8')
 
     # Get current date
     date = datetime.now()

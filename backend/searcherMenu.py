@@ -1,7 +1,10 @@
 import curses
+import base64
 from whoosh.qparser import QueryParser, FuzzyTermPlugin
 from rich.console import Console
 from rich.table import Table
+
+from .passwords import decryptor
 
 class SearcherMenu:
     def __init__(self, index, word):
@@ -21,7 +24,7 @@ class SearcherMenu:
             # Verify if there is a word
             if word != "":
                 # Setup searcher
-                # TODO: Agregar mas buscadores ya que Fuzzy no es preciso ahora mismo
+                # TODO: Agregar mas buscadores ya que Fuzzy no es preciso ahora mismo, hay que arreglar el prefix
                 queryParser = QueryParser("tags", self.index.schema)
                 queryParser.add_plugin(FuzzyTermPlugin())
 
@@ -37,7 +40,11 @@ class SearcherMenu:
             # Put passwords in a table
             table = Table('Contraseña' , 'Tags')
             for result in results:
-                table.add_row(result["password"], result["tags"])
+                # Decrypt password
+                passwordBytes = base64.b64decode(result['password'])
+                password = decryptor(passwordBytes)
+
+                table.add_row(password, result["tags"])
 
             console.print(table)
 
@@ -68,7 +75,11 @@ class SearcherMenu:
             # Poner las contraseñas en una tabla 
             table = Table('Contraseña' , 'Tags')
             for result in results:
-                table.add_row(result["password"], result["tags"])
+                # Decrypt password
+                passwordBytes = base64.b64decode(result['password'])
+                password = decryptor(passwordBytes)
+                    
+                table.add_row(password, result["tags"])
             
             # Transformar los resultados a otro tipo para hacer el retorno mas facil.
             self.resutls = []
