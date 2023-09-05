@@ -5,7 +5,7 @@
 
 # Description
 
-Placeholder
+A safe Password Manager on CLI (Command Line Interface)
 
 # Installation
 
